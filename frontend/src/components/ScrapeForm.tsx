@@ -189,9 +189,9 @@ export default function ScrapeForm() {
     } catch (e) {
       console.error('Scraping failed:', e)
       setToastMessage('Failed to analyze persona')
-    } finally {
-        setScrapeResult(null)
+      setScrapeResult(null)
         setPersonaResult(null)
+    } finally {
       setLoadingStage('idle')
     }
   }
@@ -463,22 +463,22 @@ export default function ScrapeForm() {
               
               <div class="section">
                 <h3 class="section-title">Behaviors & Habits</h3>
-                ${personaResult.behaviors_and_habits.map(habit => `<div class="list-item">${habit}</div>`).join('')}
+                ${personaResult.behaviors_and_habits.map(habit => `<div class="list-item">${habit.text}</div>`).join('')}
               </div>
               
               <div class="section">
                 <h3 class="section-title">Goals & Needs</h3>
-                ${personaResult.goals_and_needs.map(goal => `<div class="list-item">${goal}</div>`).join('')}
+                ${personaResult.goals_and_needs.map(goal => `<div class="list-item">${goal.text}</div>`).join('')}
               </div>
               
               <div class="section">
                 <h3 class="section-title">Frustrations</h3>
-                ${personaResult.frustrations.map(frustration => `<div class="list-item">${frustration}</div>`).join('')}
+                ${personaResult.frustrations.map(frustration => `<div class="list-item">${frustration.text}</div>`).join('')}
               </div>
               
               <div class="section">
                 <h3 class="section-title">Motivations</h3>
-                ${personaResult.motivations.map(motivation => `<div class="list-item">${motivation}</div>`).join('')}
+                ${personaResult.motivations.map(motivation => `<div class="list-item">${motivation.text}</div>`).join('')}
               </div>
               
               ${personaResult.personality_type ? `
@@ -546,19 +546,19 @@ Perceiving/Judging: ${persona.perceiving_judging}/10
 
 BEHAVIORS & HABITS
 ==================
-${persona.behaviors_and_habits.map((habit, i) => `${i + 1}. ${habit}`).join('\n')}
+${persona.behaviors_and_habits.map((habit, i) => `${i + 1}. ${habit.text}`).join('\n')}
 
 GOALS & NEEDS
 =============
-${persona.goals_and_needs.map((goal, i) => `${i + 1}. ${goal}`).join('\n')}
+${persona.goals_and_needs.map((goal, i) => `${i + 1}. ${goal.text}`).join('\n')}
 
 FRUSTRATIONS
 ============
-${persona.frustrations.map((frustration, i) => `${i + 1}. ${frustration}`).join('\n')}
+${persona.frustrations.map((frustration, i) => `${i + 1}. ${frustration.text}`).join('\n')}
 
 MOTIVATIONS
 ===========
-${persona.motivations.map((motivation, i) => `${i + 1}. ${motivation}`).join('\n')}
+${persona.motivations.map((motivation, i) => `${i + 1}. ${motivation.text}`).join('\n')}
 
 KEYWORDS
 ========

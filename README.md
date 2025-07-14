@@ -13,6 +13,12 @@ Scrape any Reddit user's profile and generate a detailed personality analysis us
 
 ---
 
+<div align="center">
+    <img src="./RedditPersonaDemo.gif" alt="Demo GIF" style="width: 100%; display: block;" autoplay loop>
+</div>
+
+---
+
 ##  Setup Instructions
 
 Follow these steps to get the app running locally on your machine.
