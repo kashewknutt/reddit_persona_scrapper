@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #0A192F;
+  --green: #32CD32;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy: #020c1a;
+    --green: #228b22;
+  }
+}

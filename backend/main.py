@@ -3,7 +3,8 @@ import json
 from utils import call_llm_with_fallback, extract_json_loose, generate_persona_prompt
 from reddit_scraper import extract_username, fetch_user_data
 from fastapi import FastAPI, HTTPException
-from models import ScrapeRequest, ScrapeResponse
+from fastapi.middleware.cors import CORSMiddleware
+from models import PersonaCore, ScrapeRequest, ScrapeResponse, PersonaResponse
 from dotenv import load_dotenv
 import re
 
@@ -11,12 +12,22 @@ load_dotenv()
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/scrape", response_model=ScrapeResponse)
 def scrape_user(data: ScrapeRequest):
     username = extract_username(data.username)
 
     try:
         result = fetch_user_data(username)
+        if not result:
+            raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scraping failed: {str(e)}")
 
@@ -41,7 +52,7 @@ def scrape_user(data: ScrapeRequest):
     )
 
 
-@app.post("/generate_persona", response_model=ScrapeResponse)
+@app.post("/generate_persona", response_model=PersonaResponse)
 def generate_persona(scrape_data: ScrapeResponse):
     try:
         prompt = generate_persona_prompt(scrape_data.dict())
@@ -51,34 +62,28 @@ def generate_persona(scrape_data: ScrapeResponse):
             raise HTTPException(status_code=502, detail="LLM returned empty response")
 
         raw_text = raw_text.replace("```json", "").replace("```", "").strip()
-
-        final_response = None
+        llm_data = None
 
         try:
-            final_response = ScrapeResponse.model_validate_json(raw_text)
+            llm_data = PersonaCore.model_validate_json(raw_text)
             print("Parsed JSON directly from model output", flush=True)
         except Exception as e:
             print("Direct parse failed:", e, flush=True)
             loose_json = extract_json_loose(raw_text)
             if loose_json:
                 parsed = json.loads(loose_json)
-                final_response = ScrapeResponse.model_validate(parsed)
+                llm_data = PersonaCore.model_validate(parsed)
                 print("Parsed JSON via loose fallback", flush=True)
 
-        if not final_response:
+        if not llm_data:
             raise HTTPException(status_code=500, detail="Failed to parse LLM response")
 
-        # Merge original metadata into response
-        final_dict = final_response.model_dump()
-        metadata_fields = ["username", "name", "profile_picture", "occupation", "status", "location"]
-        for field in metadata_fields:
-            final_dict[field] = getattr(scrape_data, field, None)
+        # Merge with metadata
+        llm_dict = llm_data.model_dump()
+        meta_dict = scrape_data.model_dump()
+        merged = {**meta_dict, **llm_dict}
 
-        # Also include posts/comments in case needed on frontend
-        final_dict["posts"] = scrape_data.posts
-        final_dict["comments"] = scrape_data.comments
-
-        return ScrapeResponse(**final_dict)
+        return PersonaResponse(**merged)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Persona generation failed: {str(e)}")
