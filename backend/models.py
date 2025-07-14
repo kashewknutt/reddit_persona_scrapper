@@ -39,7 +39,7 @@ class PersonaCore(BaseModel):
     goals_and_needs: List[str] = Field(..., min_items=1)
     frustrations: List[str] = Field(..., min_items=1)
     motivations: List[str] = Field(..., min_items=1)
-    keywords: List[str] = Field(..., min_items=4, max_items=4)
+    keywords: List[str] = Field(..., min_items=1)
 
     personality_type: str | None = None
     emotional_regulation: int | None = None

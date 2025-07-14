@@ -149,13 +149,11 @@ export default function ScrapeForm() {
         body: JSON.stringify({ username }),
       })
 
-      if (!scrapeRes.ok) {
-        setLoadingStage('idle')
-        setToastMessage('No data found for this username')
-        return
-      }
+      const scrapeData: ScrapeResult = await scrapeRes.json()
 
-      const scrapeData = await scrapeRes.json()
+      if (scrapeData.posts.length === 0 || scrapeData.comments.length === 0) {
+        throw new Error('No data found for this username')
+      }
       setScrapeResult(scrapeData)
 
       setLoadingStage('analyzing')
@@ -187,6 +185,8 @@ export default function ScrapeForm() {
       console.error('Scraping failed:', e)
       setToastMessage('Failed to analyze persona')
     } finally {
+        setScrapeResult(null)
+        setPersonaResult(null)
       setLoadingStage('idle')
     }
   }
