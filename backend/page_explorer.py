@@ -1,10 +1,11 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
+
 import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 def init_driver(headless=False):
@@ -16,7 +17,8 @@ def init_driver(headless=False):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     )
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
@@ -27,7 +29,9 @@ def init_driver(headless=False):
     driver.execute_cdp_cmd(
         "Page.addScriptToEvaluateOnNewDocument",
         {
-            "source": "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
+            "source": (
+                "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
+            )
         },
     )
 
@@ -36,7 +40,7 @@ def init_driver(headless=False):
 
 def scrape_new_reddit_user(username, max_scrolls=3):
     url = f"https://www.reddit.com/user/{username}/"
-    print(f"🔍 Visiting: {url}")
+    print(f"Visiting: {url}")
     driver = init_driver()
     driver.get(url)
 
@@ -44,7 +48,9 @@ def scrape_new_reddit_user(username, max_scrolls=3):
 
     try:
         WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-testid='post-container']"))
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "div[data-testid='post-container']")
+            )
         )
 
         for scroll_num in range(max_scrolls):
@@ -53,7 +59,7 @@ def scrape_new_reddit_user(username, max_scrolls=3):
             time.sleep(3)  # Allow time for new posts to load
 
         posts = driver.find_elements(By.CSS_SELECTOR, "div[data-testid='post-container']")
-        print(f"✅ Found {len(posts)} post containers")
+        print(f"Found {len(posts)} post containers")
 
         for post in posts:
             try:
@@ -63,15 +69,15 @@ def scrape_new_reddit_user(username, max_scrolls=3):
                 post_url = url_elem.get_attribute("href")
                 post_data.append({"title": title, "url": post_url})
             except Exception as e:
-                print(f"⚠️ Skipping a post due to error: {e}")
+                print(f"Skipping a post due to error: {e}")
                 continue
 
-        print(f"\n📦 Extracted {len(post_data)} posts:")
+        print(f"\nExtracted {len(post_data)} posts:")
         for item in post_data:
             print(f"- {item['title']}\n  🔗 {item['url']}")
 
     except Exception as e:
-        print(f"❌ Failed to load or parse page: {e}")
+        print(f"Failed to load or parse page: {e}")
         print(driver.page_source[:2000])  # Optional: for debugging
 
     finally:

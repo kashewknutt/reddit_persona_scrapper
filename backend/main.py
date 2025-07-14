@@ -1,16 +1,25 @@
+
 # main.py
 import json
-from utils import call_llm_with_fallback, extract_json_loose, generate_persona_prompt
-from reddit_scraper import extract_username, fetch_user_data
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
 from models import PersonaCore, ScrapeRequest, ScrapeResponse, PersonaResponse
-from dotenv import load_dotenv
-import re
+from reddit_scraper import extract_username, fetch_user_data
+from utils import (
+    call_llm_with_fallback,
+    extract_json_loose,
+    generate_persona_prompt,
+)
+
 
 load_dotenv()
 
+
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/scrape", response_model=ScrapeResponse)
 def scrape_user(data: ScrapeRequest):
@@ -48,7 +58,7 @@ def scrape_user(data: ScrapeRequest):
         status=result.get("status"),
         location=result.get("location"),
         posts=result.get("posts", []),
-        comments=result.get("comments", [])
+        comments=result.get("comments", []),
     )
 
 
@@ -60,21 +70,33 @@ def generate_persona(scrape_data: ScrapeResponse):
             raw_text = call_llm_with_fallback(prompt)
 
             if not raw_text:
-                raise HTTPException(status_code=502, detail="LLM returned empty response")
+                raise HTTPException(
+                    status_code=502, detail="LLM returned empty response"
+                )
 
             raw_text = raw_text.replace("```json", "").replace("```", "").strip()
             llm_data = None
 
             try:
                 llm_data = PersonaCore.model_validate_json(raw_text)
-                print(f"Parsed JSON directly from model output on attempt {attempt + 1}", flush=True)
+                print(
+                    f"Parsed JSON directly from model output on attempt {attempt + 1}",
+                    flush=True,
+                )
             except Exception as e:
-                print(f"Direct parse failed on attempt {attempt + 1}:", e, flush=True)
+                print(
+                    f"Direct parse failed on attempt {attempt + 1}:", 
+                    e, 
+                    flush=True
+                )
                 loose_json = extract_json_loose(raw_text)
                 if loose_json:
                     parsed = json.loads(loose_json)
                     llm_data = PersonaCore.model_validate(parsed)
-                    print(f"Parsed JSON via loose fallback on attempt {attempt + 1}", flush=True)
+                    print(
+                        f"Parsed JSON via loose fallback on attempt {attempt + 1}",
+                        flush=True,
+                    )
 
             if llm_data:
                 llm_dict = llm_data.model_dump()
@@ -84,6 +106,11 @@ def generate_persona(scrape_data: ScrapeResponse):
                 return PersonaResponse(**merged)
 
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {str(e)}", flush=True)
+            print(
+                f"Attempt {attempt + 1} failed: {str(e)}", 
+                flush=True
+            )
 
-    raise HTTPException(status_code=500, detail="Persona generation failed after 3 attempts")
+    raise HTTPException(
+        status_code=500, detail="Persona generation failed after 3 attempts"
+    )

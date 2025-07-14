@@ -1,22 +1,27 @@
+
 # reddit_scraper.py
 import os
 import time
-from typing import List, Dict
-from dotenv import load_dotenv
-import requests
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-import praw
 import logging
+from typing import List, Dict
+
+import praw
+import requests
+from dotenv import load_dotenv
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
 
 load_dotenv()
+
 
 reddit_api = praw.Reddit(
     client_id=os.getenv("REDDIT_CLIENT_ID"),
     client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
-    user_agent=os.getenv("REDDIT_USER_AGENT")
+    user_agent=os.getenv("REDDIT_USER_AGENT"),
 )
+
 
 def extract_username(url_or_username: str) -> str:
     if "reddit.com/user/" in url_or_username:
@@ -33,7 +38,8 @@ def init_selenium_driver(headless=True):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     )
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
@@ -45,12 +51,14 @@ def init_selenium_driver(headless=True):
     driver.execute_cdp_cmd(
         "Page.addScriptToEvaluateOnNewDocument",
         {
-            "source": """
+            "source": (
+                """
             Object.defineProperty(navigator, 'webdriver', {
                 get: () => undefined
             })
             """
-        }
+            )
+        },
     )
 
     return driver
@@ -79,7 +87,7 @@ def scrape_with_selenium(username: str, max_scroll=3) -> Dict[str, List[Dict]]:
                     is_comment = "comment" in entry.get_attribute("class")
                     result = {
                         "body": body,
-                        "url": link
+                        "url": link,
                     }
                     if is_comment:
                         comments.append({"type": "comment", **result})
@@ -116,7 +124,7 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
                 "body": submission.selftext,
                 "subreddit": str(submission.subreddit),
                 "created_utc": submission.created_utc,
-                "url": f"https://www.reddit.com{submission.permalink}"
+                "url": f"https://www.reddit.com{submission.permalink}",
             })
 
         comments = []
@@ -126,20 +134,20 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
                 "body": comment.body,
                 "subreddit": str(comment.subreddit),
                 "created_utc": comment.created_utc,
-                "url": f"https://www.reddit.com{comment.permalink}"
+                "url": f"https://www.reddit.com{comment.permalink}",
             })
 
         return {
             "username": username,
             "posts": posts,
-            "comments": comments
+            "comments": comments,
         }
     except Exception as e:
         print(f"[PRAW] Scrape error: {e}")
         return {
             "username": username,
             "posts": [],
-            "comments": []
+            "comments": [],
         }
 
 
@@ -171,7 +179,7 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
                 "accept_followers": data.get("accept_followers"),
                 "occupation": subreddit_data.get("public_description"),
                 "status": subreddit_data.get("title"),
-                "location": None  # Not available via API
+                "location": None,
             }
         else:
             logging.warning(f"Non-200 status code: {resp.status_code}")
@@ -187,5 +195,5 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
     return {
         **metadata,
         "posts": combined_posts,
-        "comments": combined_comments
+        "comments": combined_comments,
     }

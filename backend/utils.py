@@ -1,7 +1,10 @@
+
 # utils.py
-import httpx
 import os
 import re
+
+import httpx
+
 
 def extract_json_loose(text: str) -> str | None:
     """
@@ -22,12 +25,13 @@ def extract_json_loose(text: str) -> str | None:
     raw_json = re.sub(r'"\s+"', '", "', raw_json)
 
     # Fix: trailing commas before list/obj endings
-    raw_json = re.sub(r',(\s*[\]}])', r'\1', raw_json)
+    raw_json = re.sub(r',([\s*[\]}])', r'\1', raw_json)
 
     return raw_json
 
 
 HEADERS = {"Content-Type": "application/json"}
+
 
 def call_llm_with_fallback(content: str):
     messages = [{"role": "user", "content": content}]
@@ -74,7 +78,9 @@ def call_llm_with_fallback(content: str):
 
 def generate_persona_prompt(data: dict) -> str:
     posts_and_comments = data.get("posts", []) + data.get("comments", [])
-    combined_text = "\n---\n".join([item.get("body", "") for item in posts_and_comments if item.get("body")])
+    combined_text = "\n---\n".join([
+        item.get("body", "") for item in posts_and_comments if item.get("body")
+    ])
     limited_text = combined_text[:5000]  # Truncate to reduce LLM overload
 
     prompt = f"""
