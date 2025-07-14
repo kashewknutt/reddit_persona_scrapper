@@ -144,9 +144,7 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
 
 
 def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
-    logging.basicConfig(level=logging.INFO)
     username = extract_username(url_or_username)
-    logging.info(f"[Main] Fetching data for user: {username}")
 
     about_url = f"https://www.reddit.com/user/{username}/about.json"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -175,7 +173,6 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
                 "status": subreddit_data.get("title"),
                 "location": None  # Not available via API
             }
-            print(f"[About.json] Metadata: {metadata}", flush=True)
         else:
             logging.warning(f"Non-200 status code: {resp.status_code}")
     except Exception as e:

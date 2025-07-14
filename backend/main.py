@@ -17,7 +17,6 @@ def scrape_user(data: ScrapeRequest):
 
     try:
         result = fetch_user_data(username)
-        print(f"[Main] Scraped data for user: {result}", flush=True)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scraping failed: {str(e)}")
 
