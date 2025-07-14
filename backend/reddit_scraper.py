@@ -1,7 +1,9 @@
+# reddit_scraper.py
 import os
 import time
 from typing import List, Dict
 from dotenv import load_dotenv
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -146,14 +148,47 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
     username = extract_username(url_or_username)
     logging.info(f"[Main] Fetching data for user: {username}")
 
+    about_url = f"https://www.reddit.com/user/{username}/about.json"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    metadata = {}
+    try:
+        resp = requests.get(about_url, headers=headers)
+        if resp.status_code == 200:
+            data = resp.json().get("data", {})
+            subreddit_data = data.get("subreddit", {})
+
+            metadata = {
+                "username": data.get("name"),
+                "profile_picture": data.get("icon_img"),
+                "snoovatar": data.get("snoovatar_img"),
+                "comment_karma": data.get("comment_karma"),
+                "post_karma": data.get("link_karma"),
+                "total_karma": data.get("total_karma"),
+                "created_utc": data.get("created_utc"),
+                "is_mod": data.get("is_mod"),
+                "is_gold": data.get("is_gold"),
+                "verified": data.get("verified"),
+                "has_verified_email": data.get("has_verified_email"),
+                "accept_followers": data.get("accept_followers"),
+                "occupation": subreddit_data.get("public_description"),
+                "status": subreddit_data.get("title"),
+                "location": None  # Not available via API
+            }
+            print(f"[About.json] Metadata: {metadata}", flush=True)
+        else:
+            logging.warning(f"Non-200 status code: {resp.status_code}")
+    except Exception as e:
+        logging.error(f"[About.json] Error fetching metadata: {e}")
+
     selenium_data = scrape_with_selenium(username)
     praw_data = scrape_with_praw(username)
 
-    combined_posts = praw_data["posts"][:10] + selenium_data["posts"][:10]
-    combined_comments = praw_data["comments"][:10] + selenium_data["comments"][:10]
+    combined_posts = praw_data.get("posts", [])[:10] + selenium_data.get("posts", [])[:10]
+    combined_comments = praw_data.get("comments", [])[:10] + selenium_data.get("comments", [])[:10]
 
     return {
-        "username": username,
+        **metadata,
         "posts": combined_posts,
         "comments": combined_comments
     }
