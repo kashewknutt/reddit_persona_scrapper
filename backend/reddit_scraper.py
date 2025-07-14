@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import praw
+import logging
 
 load_dotenv()
 
@@ -29,13 +30,9 @@ def init_selenium_driver(headless=True):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-    # Realistic user-agent
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     )
-
-    # Anti-detection flags
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
 
@@ -43,7 +40,6 @@ def init_selenium_driver(headless=True):
     service = Service("chromedriver/chromedriver.exe")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
-    # Remove navigator.webdriver
     driver.execute_cdp_cmd(
         "Page.addScriptToEvaluateOnNewDocument",
         {
@@ -58,59 +54,52 @@ def init_selenium_driver(headless=True):
     return driver
 
 
-
 def scrape_with_selenium(username: str, max_scroll=3) -> Dict[str, List[Dict]]:
-    url = f"https://old.reddit.com/user/{username}/"
+    logging.basicConfig(level=logging.INFO)
+    url = f"https://old.reddit.com/user/{username}"
+    logging.info(f"[Selenium] Starting scrape for user: {username} at {url}")
 
-    driver = init_selenium_driver()
+    driver = init_selenium_driver(headless=True)
     driver.get(url)
-    time.sleep(2)
+    time.sleep(3)
 
-    posts, comments = [], []
+    posts = []
+    comments = []
 
     try:
-        for _ in range(max_scroll):
-            elements = driver.find_elements(By.CSS_SELECTOR, "div.thing")
-            for el in elements:
+        for i in range(max_scroll):
+            entries = driver.find_elements(By.CSS_SELECTOR, "div.thing")
+            logging.info(f"[Selenium] Found {len(entries)} items on scroll {i+1}")
+            for entry in entries:
                 try:
-                    thing_type = el.get_attribute("data-type")  # 'link' or 'comment'
-                    link = el.find_element(By.CSS_SELECTOR, "a.title") if thing_type == "link" else el.find_element(By.CSS_SELECTOR, "a.bylink")
-                    body_text = el.text
-
-                    if thing_type == "comment":
-                        comments.append({
-                            "type": "comment",
-                            "body": body_text,
-                            "url": link.get_attribute("href")
-                        })
+                    body = entry.find_element(By.CSS_SELECTOR, "div.entry").text
+                    link = entry.get_attribute("data-url") or ""
+                    is_comment = "comment" in entry.get_attribute("class")
+                    result = {
+                        "body": body,
+                        "url": link
+                    }
+                    if is_comment:
+                        comments.append({"type": "comment", **result})
                     else:
-                        posts.append({
-                            "type": "post",
-                            "body": body_text,
-                            "url": link.get_attribute("href")
-                        })
-                except:
+                        posts.append({"type": "post", **result})
+                except Exception as inner:
+                    logging.warning(f"[Selenium] Failed to parse entry: {inner}")
                     continue
 
-            # Pagination instead of infinite scroll
-            next_btn = driver.find_elements(By.CSS_SELECTOR, "span.next-button > a")
-            if next_btn:
-                next_btn[0].click()
-                time.sleep(2)
-            else:
-                break
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
     except Exception as e:
-        print(f"Selenium scrape error: {e}")
+        logging.error(f"[Selenium] Scrape failed: {e}")
     finally:
         driver.quit()
+        logging.info("[Selenium] Driver closed.")
 
-    if not posts and not comments:
-        print(f"No posts/comments scraped with Selenium for user {username}")
-
+    logging.info(f"[Selenium] Scraped {len(posts)} posts and {len(comments)} comments")
     return {
         "username": username,
         "posts": posts,
-        "comments": comments
+        "comments": comments,
     }
 
 
@@ -144,7 +133,7 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
             "comments": comments
         }
     except Exception as e:
-        print(f"PRAW scrape error: {e}")
+        print(f"[PRAW] Scrape error: {e}")
         return {
             "username": username,
             "posts": [],
@@ -153,11 +142,18 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
 
 
 def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
+    logging.basicConfig(level=logging.INFO)
     username = extract_username(url_or_username)
-    data = scrape_with_selenium(username)
+    logging.info(f"[Main] Fetching data for user: {username}")
 
-    if len(data["posts"]) < 2 and len(data["comments"]) < 2:
-        print("Falling back to PRAW...")
-        data = scrape_with_praw(username)
+    selenium_data = scrape_with_selenium(username)
+    praw_data = scrape_with_praw(username)
 
-    return data
+    combined_posts = praw_data["posts"][:10] + selenium_data["posts"][:10]
+    combined_comments = praw_data["comments"][:10] + selenium_data["comments"][:10]
+
+    return {
+        "username": username,
+        "posts": combined_posts,
+        "comments": combined_comments
+    }
