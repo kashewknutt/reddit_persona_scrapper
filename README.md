@@ -136,7 +136,7 @@ Create a file named `.env` inside the **backend/** folder (not the root), with t
 ```ini
 REDDIT_CLIENT_ID="your_reddit_client_id" # You'll get this from the reddit app.
 REDDIT_CLIENT_SECRET="your_reddit_client_secret" # You'll get this from reddit.
-REDDIT_USER_AGENT="script:PersonaScrapper:0.1 (by /u/your reddit username)" # Cope this and replace it with your reddit username.
+REDDIT_USER_AGENT="script:PersonaScrapper:0.1 (by /u/your reddit username)" # Copy this and replace it with your reddit username.
 OPENROUTER_API_KEY="your_openrouter_key" # You'll get a key when you register here. Don't worry, the model I'm using is free, you won't be charged.
 ```
 
@@ -152,7 +152,7 @@ If you're not using **Windows**, you need to install the correct `chromedriver` 
     
 3. Rename the downloaded file to `chromedriver` (no extension).
     
-4. Replace the existing file in `backend/reddit_scraper.py` or update the path accordingly.
+4. Replace the existing file in `backend/reddit_scraper.py` or update the path accordingly. You need to update line 42 with the path to your chromedriver.
     
 
 > **Windows users:** You don’t need to install anything. `chromedriver.exe` is already included.
@@ -167,7 +167,7 @@ With your environment set up and `.env` in place:
 uvicorn main:app --reload
 ```
 
-Your FastAPI server will be live at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Your FastAPI server will be live at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
@@ -206,7 +206,7 @@ You can now enter any Reddit username and generate an AI-powered personality ins
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14, TailwindCSS, React
+- **Frontend:** Next.js 15, TailwindCSS, React
     
 - **Backend:** FastAPI, PRAW, OpenRouter
     
