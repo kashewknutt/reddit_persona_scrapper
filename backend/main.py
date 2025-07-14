@@ -54,36 +54,36 @@ def scrape_user(data: ScrapeRequest):
 
 @app.post("/generate_persona", response_model=PersonaResponse)
 def generate_persona(scrape_data: ScrapeResponse):
-    try:
-        prompt = generate_persona_prompt(scrape_data.dict())
-        raw_text = call_llm_with_fallback(prompt)
-
-        if not raw_text:
-            raise HTTPException(status_code=502, detail="LLM returned empty response")
-
-        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
-        llm_data = None
-
+    for attempt in range(3):
         try:
-            llm_data = PersonaCore.model_validate_json(raw_text)
-            print("Parsed JSON directly from model output", flush=True)
+            prompt = generate_persona_prompt(scrape_data.dict())
+            raw_text = call_llm_with_fallback(prompt)
+
+            if not raw_text:
+                raise HTTPException(status_code=502, detail="LLM returned empty response")
+
+            raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+            llm_data = None
+
+            try:
+                llm_data = PersonaCore.model_validate_json(raw_text)
+                print(f"Parsed JSON directly from model output on attempt {attempt + 1}", flush=True)
+            except Exception as e:
+                print(f"Direct parse failed on attempt {attempt + 1}:", e, flush=True)
+                loose_json = extract_json_loose(raw_text)
+                if loose_json:
+                    parsed = json.loads(loose_json)
+                    llm_data = PersonaCore.model_validate(parsed)
+                    print(f"Parsed JSON via loose fallback on attempt {attempt + 1}", flush=True)
+
+            if llm_data:
+                llm_dict = llm_data.model_dump()
+                meta_dict = scrape_data.model_dump()
+                merged = {**meta_dict, **llm_dict}
+
+                return PersonaResponse(**merged)
+
         except Exception as e:
-            print("Direct parse failed:", e, flush=True)
-            loose_json = extract_json_loose(raw_text)
-            if loose_json:
-                parsed = json.loads(loose_json)
-                llm_data = PersonaCore.model_validate(parsed)
-                print("Parsed JSON via loose fallback", flush=True)
+            print(f"Attempt {attempt + 1} failed: {str(e)}", flush=True)
 
-        if not llm_data:
-            raise HTTPException(status_code=500, detail="Failed to parse LLM response")
-
-        # Merge with metadata
-        llm_dict = llm_data.model_dump()
-        meta_dict = scrape_data.model_dump()
-        merged = {**meta_dict, **llm_dict}
-
-        return PersonaResponse(**merged)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Persona generation failed: {str(e)}")
+    raise HTTPException(status_code=500, detail="Persona generation failed after 3 attempts")

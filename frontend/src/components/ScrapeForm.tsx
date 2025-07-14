@@ -26,6 +26,11 @@ interface ScrapeResult {
   comments: any[]
 }
 
+interface TextWithUrl {
+    text: string | null
+    url: string | null
+}
+
 interface PersonaResult {
   username: string
   name: string | null
@@ -49,10 +54,10 @@ interface PersonaResult {
   intuition_sensing: number
   feeling_thinking: number
   perceiving_judging: number
-  behaviors_and_habits: string[]
-  goals_and_needs: string[]
-  frustrations: string[]
-  motivations: string[]
+  behaviors_and_habits: TextWithUrl[]
+  goals_and_needs: TextWithUrl[]
+  frustrations: TextWithUrl[]
+  motivations: TextWithUrl[]
   keywords: string[]
   personality_type: string | null
   emotional_regulation: string | null
@@ -666,14 +671,23 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
 
             {/* Raw Data Toggle */}
             {scrapeResult && (
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowRawData(!showRawData)}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:bg-white rounded transition-colors"
-                >
-                  {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  {showRawData ? 'Hide Raw Data' : 'View Raw Data'}
-                </button>
+              <div>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowRawData(!showRawData)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:bg-white rounded transition-colors"
+                  >
+                    {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showRawData ? 'Hide Raw Data' : 'View Raw Data'}
+                  </button>
+                </div>
+                {showRawData && (
+                  <div className="mt-4 bg-slate-100 rounded-lg p-4 border border-slate-200 max-h-96 overflow-y-auto">
+                    <pre className="text-xs text-slate-700 whitespace-pre-wrap">
+          {JSON.stringify(scrapeResult, null, 2)}
+        </pre>
+                  </div>
+                )}
               </div>
             )}
 
@@ -837,9 +851,19 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                         {personaResult.behaviors_and_habits.map((habit, idx) => (
                           <div
                             key={idx}
-                            className="p-3 bg-slate-50 rounded text-sm text-slate-600"
+                            className="p-3 bg-slate-50 rounded text-sm text-slate-600 flex items-center justify-between"
                           >
-                            {habit}
+                            <span>{habit.text}</span>
+                            {habit.url && (
+                              <a
+                                href={habit.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-3 text-xs text-emerald-600 hover:underline whitespace-nowrap"
+                              >
+                                Source
+                              </a>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -857,7 +881,17 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                             key={idx}
                             className="p-3 bg-slate-50 rounded text-sm text-slate-600"
                           >
-                            {goal}
+                            <span>{goal.text}</span>
+                            {goal.url && (
+                              <a
+                                href={goal.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-3 text-xs text-emerald-600 hover:underline whitespace-nowrap"
+                              >
+                                Source
+                              </a>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -872,7 +906,17 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                             key={idx}
                             className="p-3 bg-slate-50 rounded text-sm text-slate-600"
                           >
-                            {frustration}
+                            <span>{frustration.text}</span>
+                            {frustration.url && (
+                              <a
+                                href={frustration.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-3 text-xs text-emerald-600 hover:underline whitespace-nowrap"
+                              >
+                                Source
+                              </a>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -887,7 +931,17 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                             key={idx}
                             className="p-3 bg-slate-50 rounded text-sm text-slate-600"
                           >
-                            {motivation}
+                            <span>{motivation.text}</span>
+                            {motivation.url && (
+                              <a
+                                href={motivation.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-3 text-xs text-emerald-600 hover:underline whitespace-nowrap"
+                              >
+                                Source
+                              </a>
+                            )}
                           </div>
                         ))}
                       </div>

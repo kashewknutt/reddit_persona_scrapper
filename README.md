@@ -128,10 +128,10 @@ OpenRouter provides free access to powerful open-source LLMs.
 Create a file named `.env` inside the **backend/** folder (not the root), with the following content:
 
 ```ini
-REDDIT_CLIENT_ID=your_reddit_client_id # You'll get this from the reddit app.
-REDDIT_CLIENT_SECRET=your_reddit_client_secret # You'll get this from reddit.
-REDDIT_USER_AGENT="script:PersonaScrapper:0.1 (by /u/{your reddit username})" # Cope this as it is
-OPENROUTER_API_KEY=your_openrouter_key # You'll get a key when you register here. Don't worry, the model I'm using is free, you won't be charged.
+REDDIT_CLIENT_ID="your_reddit_client_id" # You'll get this from the reddit app.
+REDDIT_CLIENT_SECRET="your_reddit_client_secret" # You'll get this from reddit.
+REDDIT_USER_AGENT="script:PersonaScrapper:0.1 (by /u/your reddit username)" # Cope this and replace it with your reddit username.
+OPENROUTER_API_KEY="your_openrouter_key" # You'll get a key when you register here. Don't worry, the model I'm using is free, you won't be charged.
 ```
 
 ---
