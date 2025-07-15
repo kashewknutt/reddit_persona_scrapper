@@ -114,39 +114,30 @@ def scrape_with_praw(username: str, limit: int = 20) -> Dict[str, List[Dict]]:
 def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
     username = extract_username(url_or_username)
 
-    about_url = f"https://www.reddit.com/user/{username}/about.json"
-    headers = {"User-Agent": "Mozilla/5.0"}
-
     metadata = {}
     try:
-        resp = requests.get(about_url, headers=headers)
-        print(f"about.json status: {resp.status_code}", flush=True)
-        print(f"about.json content: {resp.text}", flush=True)
-        if resp.status_code == 200:
-            data = resp.json().get("data", {})
-            subreddit_data = data.get("subreddit", {})
+        user = reddit_api.redditor(username)
+        subreddit = user.subreddit
 
-            metadata = {
-                "username": data.get("name"),
-                "profile_picture": data.get("icon_img"),
-                "snoovatar": data.get("snoovatar_img"),
-                "comment_karma": data.get("comment_karma"),
-                "post_karma": data.get("link_karma"),
-                "total_karma": data.get("total_karma"),
-                "created_utc": data.get("created_utc"),
-                "is_mod": data.get("is_mod"),
-                "is_gold": data.get("is_gold"),
-                "verified": data.get("verified"),
-                "has_verified_email": data.get("has_verified_email"),
-                "accept_followers": data.get("accept_followers"),
-                "occupation": subreddit_data.get("public_description"),
-                "status": subreddit_data.get("title"),
-                "location": None,
-            }
-        else:
-            logging.warning(f"Non-200 status code: {resp.status_code}")
+        metadata = {
+            "username": user.name,
+            "profile_picture": getattr(user, "icon_img", None),
+            "snoovatar": getattr(subreddit, "snoovatar_img", None) if subreddit else None,
+            "comment_karma": getattr(user, "comment_karma", None),
+            "post_karma": getattr(user, "link_karma", None),
+            "total_karma": (getattr(user, "comment_karma", 0) + getattr(user, "link_karma", 0)),
+            "created_utc": getattr(user, "created_utc", None),
+            "is_mod": getattr(user, "is_mod", None),
+            "is_gold": getattr(user, "is_gold", None),
+            "verified": getattr(user, "verified", None),
+            "has_verified_email": getattr(user, "has_verified_email", None),
+            "accept_followers": getattr(subreddit, "accept_followers", None) if subreddit else None,
+            "occupation": getattr(subreddit, "public_description", None) if subreddit else None,
+            "status": getattr(subreddit, "title", None) if subreddit else None,
+            "location": None,  # Reddit doesn't expose this
+        }
     except Exception as e:
-        logging.error(f"[About.json] Error fetching metadata: {e}")
+        logging.error(f"[PRAW] Error fetching metadata: {e}")
 
     # playwright_data = scrape_with_playwright(username)
     praw_data = scrape_with_praw(username)
