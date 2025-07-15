@@ -1,10 +1,12 @@
 
 # main.py
 import json
+import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 from models import PersonaCore, ScrapeRequest, ScrapeResponse, PersonaResponse
 from reddit_scraper import extract_username, fetch_user_data
@@ -114,3 +116,7 @@ def generate_persona(scrape_data: ScrapeResponse):
     raise HTTPException(
         status_code=500, detail="Persona generation failed after 3 attempts"
     )
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
