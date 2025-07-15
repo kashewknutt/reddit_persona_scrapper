@@ -692,7 +692,7 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                         Discover the <span className="text-emerald-500">Power</span> Behind Reddit Profiles
                       </h2>
                       <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        Uncover personality traits, behavior patterns, and insights from any Reddit user's digital footprint.
+                        Uncover personality traits, behavior patterns, and insights from any Reddit user&apos;s digital footprint.
                         Quick, easy, and enlightening.
                       </p>
                     </div>
@@ -738,8 +738,8 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                         </a>
                         </div>
                       <div className="text-xs text-slate-400">
-                        Join thousands of users who've discovered insights about Reddit profiles
-                      </div>
+                        Join thousands of users who&apos;ve discovered insights about Reddit profiles
+                      </div> 
                     </div>
                   </div>
                 </div>
