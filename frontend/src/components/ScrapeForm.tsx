@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronRight, RefreshCcw, Download, Save, User, BarChart3, MessageCircle, FileText, Eye, EyeOff } from 'lucide-react'
+import { ChevronRight, RefreshCcw, Download, User, BarChart3, MessageCircle, FileText, Eye, EyeOff } from 'lucide-react'
+import Image from 'next/image'
 
 interface ScrapeResult {
   username: string
@@ -22,8 +23,22 @@ interface ScrapeResult {
   accept_chats: boolean | null
   accept_pms: boolean | null
   accept_followers: boolean
-  posts: any[]
-  comments: any[]
+  posts: {
+    type: string
+    title: string
+    body: string
+    subreddit: string
+    created_utc: number
+    url: string
+  }[]
+  comments: {
+    type: string
+    title: string
+    body: string
+    subreddit: string
+    created_utc: number
+    url: string
+  }[]
 }
 
 interface TextWithUrl {
@@ -569,47 +584,59 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
 `
   }
 
-  const truncate = (text: string, max: number) =>
-    text.length > max ? text.slice(0, max) + '...' : text
-
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="bg-slate-50">
       {/* Fixed Header with Search */}
       <div className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50">
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
             <h1 className="text-xl font-semibold text-slate-900">
               Reddit<span className="text-emerald-500">Profiler</span>
             </h1>
-            <div className="flex items-center gap-3 flex-1 max-w-xl ml-8">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter Reddit username..."
-                  className="w-full px-4 py-2 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm"
-                />
-                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <div className="flex flex-col lg:flex-row items-center gap-3 flex-1 max-w-xl">
+              <a
+              href="https://github.com/kashewknutt/reddit_persona_scrapper"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-8 py-2 border border-gray-300 rounded-lg transition duration-300 hover:bg-emerald-300/30 relative group"
+              >
+              <Image src="/github.svg" alt="GitHub" width={16} height={16} />
+              <span className="text-sm text-gray-700">Star</span>
+              <div className="w-8 h-4 bg-gray-300 text-white text-xs flex items-center justify-center rounded-full cursor-pointer group-hover:bg-gray-400">
+                i
+              </div>
+              <div className="absolute bottom-[-80px] w-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                It would mean a lot if you starred the repo on GitHub! Show your support!
+              </div>
+              </a>
+              <div className="relative w-full">
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter Reddit username..."
+                className="w-full px-4 py-2 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm"
+              />
+              <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               </div>
               <button
-                onClick={handleScrape}
-                disabled={!username || loadingStage !== 'idle'}
-                className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap"
+              onClick={handleScrape}
+              disabled={!username || loadingStage !== 'idle'}
+              className="w-full lg:w-auto px-6 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap"
               >
-                {loadingStage === 'idle' ? 'Analyze Profile' : 'Processing...'}
+              {loadingStage === 'idle' ? 'Analyze Profile' : 'Processing...'}
               </button>
             </div>
-          </div>
+            </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 pt-24 pb-8">
+      <div className="container mx-auto px-6 mt-64 lg:mt-24 pb-8">
         <div className="grid lg:grid-cols-6 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
@@ -698,11 +725,13 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
                   <div className="p-6 flex items-center justify-between border-b border-slate-100">
                     <div className="flex items-center gap-4">
-                      <img
-                        src={personaResult.profile_picture}
-                        alt="Profile"
-                        className="w-16 h-16 rounded-full border-2 border-slate-200"
-                      />
+                      <div className="relative w-16 h-16 rounded-full border-2 border-slate-200 flex">
+                        <Image
+                          fill
+                          src={personaResult.profile_picture}
+                          alt="Profile"
+                        />
+                      </div>
                       <div>
                         <h2 className="text-lg font-medium text-slate-900">@{personaResult.username}</h2>
                         {personaResult.name && <p className="text-sm text-slate-600">{personaResult.name}</p>}

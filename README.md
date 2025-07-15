@@ -19,6 +19,12 @@ Scrape any Reddit user's profile and generate a detailed personality analysis us
 
 ---
 
+## Give it a go!
+
+You can either test it out [here](https://redditprofiler.vercel.app), or set it up locally in your laptop for contributing!
+
+---
+
 ##  Setup Instructions
 
 Follow these steps to get the app running locally on your machine.
