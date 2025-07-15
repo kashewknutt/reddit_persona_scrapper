@@ -171,10 +171,6 @@ export default function ScrapeForm() {
 
       const scrapeData: ScrapeResult = await scrapeRes.json()
 
-      if (scrapeData.posts.length === 0 && scrapeData.comments.length === 0) {
-        setToastMessage('No posts or comments found for this username')
-        throw new Error('No data found for this username')
-      }
       setScrapeResult(scrapeData)
 
       setLoadingStage('analyzing')
