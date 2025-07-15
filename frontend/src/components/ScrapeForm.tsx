@@ -163,7 +163,7 @@ export default function ScrapeForm() {
     setLoadingStage('scraping')
 
     try {
-      const scrapeRes = await fetch('http://127.0.0.1:8000/scrape', {
+      const scrapeRes = await fetch('https://reddit-persona-scrapper.onrender.com/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -178,7 +178,7 @@ export default function ScrapeForm() {
 
       setLoadingStage('analyzing')
 
-      const analyzeRes = await fetch('http://127.0.0.1:8000/generate_persona', {
+      const analyzeRes = await fetch('https://reddit-persona-scrapper.onrender.com/generate_persona', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scrapeData),
@@ -692,7 +692,7 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                         Discover the <span className="text-emerald-500">Power</span> Behind Reddit Profiles
                       </h2>
                       <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        Uncover personality traits, behavior patterns, and insights from any Reddit user's digital footprint.
+                        Uncover personality traits, behavior patterns, and insights from any Reddit user&apos;s digital footprint.
                         Quick, easy, and enlightening.
                       </p>
                     </div>
@@ -738,8 +738,8 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                         </a>
                         </div>
                       <div className="text-xs text-slate-400">
-                        Join thousands of users who've discovered insights about Reddit profiles
-                      </div>
+                        Join thousands of users who&apos;ve discovered insights about Reddit profiles
+                      </div> 
                     </div>
                   </div>
                 </div>
