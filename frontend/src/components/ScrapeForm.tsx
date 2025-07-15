@@ -163,7 +163,7 @@ export default function ScrapeForm() {
     setLoadingStage('scraping')
 
     try {
-      const scrapeRes = await fetch('https://reddit-persona-scrapper.onrender.com/scrape', {
+      const scrapeRes = await fetch('http://127.0.0.1:8000/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -178,7 +178,7 @@ export default function ScrapeForm() {
 
       setLoadingStage('analyzing')
 
-      const analyzeRes = await fetch('https://reddit-persona-scrapper.onrender.com/generate_persona', {
+      const analyzeRes = await fetch('http://127.0.0.1:8000/generate_persona', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scrapeData),
