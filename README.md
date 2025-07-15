@@ -25,6 +25,28 @@ Follow these steps to get the app running locally on your machine.
 
 ---
 
+## Clone the Repo
+
+To get started, clone the repository to your local machine. Choose the appropriate branch based on your operating system:
+
+1. **For Windows users** (default branch is `main`):
+    ```bash
+    git clone -b main https://github.com/kashewknutt/reddit_persona_scrapper.git
+    ```
+
+2. **For Linux users**:
+    ```bash
+    git clone -b linux https://github.com/kashewknutt/reddit_persona_scrapper.git
+    ```
+
+Once cloned, navigate to the project directory:
+```bash
+cd reddit_persona_scrapper
+```
+
+
+---
+
 ## 🗂️ Project Structure
 
 ```bash
@@ -42,10 +64,10 @@ root/
 
 ## 🐍 Backend Setup
 
-1. **Open a terminal and navigate to the project root:**
+1. **Once you have opened a terminal and navigated to the project root:**
     
     ```bash
-    cd .....\reddit_persona_scrapper>
+    .....\reddit_persona_scrapper>
     ```
     
 2. **Enter the backend folder:**
