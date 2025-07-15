@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronRight, RefreshCcw, Download, Save, User, BarChart3, MessageCircle, FileText, Eye, EyeOff } from 'lucide-react'
+import { ChevronRight, RefreshCcw, Download, User, BarChart3, MessageCircle, FileText, Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 
 interface ScrapeResult {
@@ -23,8 +23,22 @@ interface ScrapeResult {
   accept_chats: boolean | null
   accept_pms: boolean | null
   accept_followers: boolean
-  posts: any[]
-  comments: any[]
+  posts: {
+    type: string
+    title: string
+    body: string
+    subreddit: string
+    created_utc: number
+    url: string
+  }[]
+  comments: {
+    type: string
+    title: string
+    body: string
+    subreddit: string
+    created_utc: number
+    url: string
+  }[]
 }
 
 interface TextWithUrl {
@@ -149,7 +163,7 @@ export default function ScrapeForm() {
     setLoadingStage('scraping')
 
     try {
-      const scrapeRes = await fetch('https://reddit-persona-scrapper.onrender.com/scrape', {
+      const scrapeRes = await fetch('http://127.0.0.1:8000/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -164,7 +178,7 @@ export default function ScrapeForm() {
 
       setLoadingStage('analyzing')
 
-      const analyzeRes = await fetch('https://reddit-persona-scrapper.onrender.com/generate_persona', {
+      const analyzeRes = await fetch('http://127.0.0.1:8000/generate_persona', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scrapeData),
@@ -570,9 +584,6 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
 `
   }
 
-  const truncate = (text: string, max: number) =>
-    text.length > max ? text.slice(0, max) + '...' : text
-
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
@@ -714,11 +725,13 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
                   <div className="p-6 flex items-center justify-between border-b border-slate-100">
                     <div className="flex items-center gap-4">
-                      <img
-                        src={personaResult.profile_picture}
-                        alt="Profile"
-                        className="w-16 h-16 rounded-full border-2 border-slate-200"
-                      />
+                      <div className="relative w-16 h-16 rounded-full border-2 border-slate-200 flex">
+                        <Image
+                          fill
+                          src={personaResult.profile_picture}
+                          alt="Profile"
+                        />
+                      </div>
                       <div>
                         <h2 className="text-lg font-medium text-slate-900">@{personaResult.username}</h2>
                         {personaResult.name && <p className="text-sm text-slate-600">{personaResult.name}</p>}
