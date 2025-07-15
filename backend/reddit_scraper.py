@@ -120,6 +120,8 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
     metadata = {}
     try:
         resp = requests.get(about_url, headers=headers)
+        print(f"about.json status: {resp.status_code}", flush=True)
+        print(f"about.json content: {resp.text}", flush=True)
         if resp.status_code == 200:
             data = resp.json().get("data", {})
             subreddit_data = data.get("subreddit", {})
@@ -146,11 +148,11 @@ def fetch_user_data(url_or_username: str) -> Dict[str, List[Dict]]:
     except Exception as e:
         logging.error(f"[About.json] Error fetching metadata: {e}")
 
-    playwright_data = scrape_with_playwright(username)
+    # playwright_data = scrape_with_playwright(username)
     praw_data = scrape_with_praw(username)
 
-    combined_posts = praw_data.get("posts", [])[:10] + playwright_data.get("posts", [])[:10]
-    combined_comments = praw_data.get("comments", [])[:10] + playwright_data.get("comments", [])[:10]
+    combined_posts = praw_data.get("posts", [])[:20]# + playwright_data.get("posts", [])[:10]
+    combined_comments = praw_data.get("comments", [])[:20]# + playwright_data.get("comments", [])[:10]
 
     return {
         **metadata,
