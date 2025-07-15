@@ -45,7 +45,7 @@ def init_selenium_driver(headless=True):
     chrome_options.add_experimental_option("useAutomationExtension", False)
 
     from selenium.webdriver.chrome.service import Service
-    service = Service("chromedriver.exe")
+    service = Service("./chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.execute_cdp_cmd(
