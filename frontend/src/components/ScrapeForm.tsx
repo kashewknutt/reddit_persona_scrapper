@@ -172,6 +172,12 @@ export default function ScrapeForm() {
       const scrapeData: ScrapeResult = await scrapeRes.json()
       setScrapeResult(scrapeData)
 
+      if (scrapeData.posts.length === 0 && scrapeData.comments.length === 0) {
+        setToastMessage('No posts or comments found for this user.')
+        setLoadingStage('idle')
+        return
+      }
+
       setLoadingStage('analyzing')
 
       const analyzeRes = await fetch('https://reddit-persona-scrapper-365628037012.asia-south1.run.app/generate_persona', {
