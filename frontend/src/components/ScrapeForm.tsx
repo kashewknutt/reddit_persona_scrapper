@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronRight, RefreshCcw, Download, User, BarChart3, MessageCircle, FileText, Eye, EyeOff } from 'lucide-react'
+import { ChevronRight, RefreshCcw, Download, User, BarChart3, MessageCircle, FileText, Eye, EyeOff, User2, CloudLightningIcon, Target, Heart } from 'lucide-react'
 import Image from 'next/image'
 
 interface ScrapeResult {
@@ -683,6 +683,67 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
 
           {/* Main Content Area */}
           <div className="lg:col-span-5 space-y-6">
+              {/* Inital Banner State */}
+                {!scrapeResult && !personaResult && loadingStage === 'idle' && (
+                <div className="min-h-[calc(100vh-14rem)] flex items-center justify-center">
+                  <div className="max-w-3xl mx-auto text-center space-y-8 px-4">
+                    <div className="space-y-4">
+                      <h2 className="text-4xl font-bold text-slate-900">
+                        Discover the <span className="text-emerald-500">Power</span> Behind Reddit Profiles
+                      </h2>
+                      <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        Uncover personality traits, behavior patterns, and insights from any Reddit user's digital footprint.
+                        Quick, easy, and enlightening.
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-2xl p-8 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                            <User2 className="w-6 h-6 text-emerald-500" />
+                          </div>
+                          <h3 className="font-semibold text-slate-900">Enter Username</h3>
+                          <p className="text-sm text-slate-600">Just paste any Reddit username above</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                            <CloudLightningIcon className="w-6 h-6 text-emerald-500" />
+                          </div>
+                          <h3 className="font-semibold text-slate-900">Quick Analysis</h3>
+                          <p className="text-sm text-slate-600">Takes less than 60 seconds</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                            <Target className="w-6 h-6 text-emerald-500" />
+                          </div>
+                          <h3 className="font-semibold text-slate-900">Get Insights</h3>
+                          <p className="text-sm text-slate-600">View detailed personality analysis</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="flex flex-col sm:flex-row items-center gap-2 text-sm text-slate-600 text-center sm:text-left">
+                        <span className="flex items-center gap-1">
+                          Created with <Heart className="w-4 h-4 text-rose-900" /> by
+                        </span>
+                        <a
+                          href="https://github.com/kashewknutt"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                        >
+                          Rajat Disawal
+                        </a>
+                        </div>
+                      <div className="text-xs text-slate-400">
+                        Join thousands of users who've discovered insights about Reddit profiles
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                )}
             {/* Loading State */}
             {loadingStage !== 'idle' && (
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
