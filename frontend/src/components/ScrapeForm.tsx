@@ -171,7 +171,8 @@ export default function ScrapeForm() {
 
       const scrapeData: ScrapeResult = await scrapeRes.json()
 
-      if (scrapeData.posts.length === 0 || scrapeData.comments.length === 0) {
+      if (scrapeData.posts.length === 0 && scrapeData.comments.length === 0) {
+        setToastMessage('No posts or comments found for this username')
         throw new Error('No data found for this username')
       }
       setScrapeResult(scrapeData)
@@ -589,7 +590,7 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
   }
 
   return (
-    <div className="bg-slate-50">
+    <div className="bg-slate-50 flex w-full max-w-screen mx-auto px-4 sm:px-6 lg:px-8">
       {/* Fixed Header with Search */}
       <div className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50">
         <div className="container mx-auto px-6 py-4">
