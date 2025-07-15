@@ -163,7 +163,7 @@ export default function ScrapeForm() {
     setLoadingStage('scraping')
 
     try {
-      const scrapeRes = await fetch('https://reddit-persona-scrapper.onrender.com/scrape', {
+      const scrapeRes = await fetch('http://127.0.0.1:8000/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -178,7 +178,7 @@ export default function ScrapeForm() {
 
       setLoadingStage('analyzing')
 
-      const analyzeRes = await fetch('https://reddit-persona-scrapper.onrender.com/generate_persona', {
+      const analyzeRes = await fetch('http://127.0.0.1:8000/generate_persona', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scrapeData),
@@ -606,10 +606,10 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
               >
               <Image src="/github.svg" alt="GitHub" width={16} height={16} />
               <span className="text-sm text-gray-700">Star</span>
-              <div className="w-8 h-4 bg-gray-300 text-white text-xs flex items-center justify-center rounded-full cursor-pointer group-hover:bg-gray-400">
+              <div className="w-4 lg:w-8 h-4 bg-gray-300 text-white text-xs flex items-center justify-center rounded-full cursor-pointer group-hover:bg-gray-400">
                 i
               </div>
-              <div className="absolute bottom-[-80px] w-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute bottom-[-80px] w-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
                 It would mean a lot if you starred the repo on GitHub! Show your support!
               </div>
               </a>
@@ -759,23 +759,23 @@ ${persona.emotional_regulation ? `\nEMOTIONAL REGULATION: ${persona.emotional_re
 
             {/* Raw Data Toggle */}
             {scrapeResult && (
-              <div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => setShowRawData(!showRawData)}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:bg-white rounded transition-colors"
-                  >
-                    {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    {showRawData ? 'Hide Raw Data' : 'View Raw Data'}
-                  </button>
+              <div className='w-full'>
+              <div className="flex justify-end">
+                <button
+                onClick={() => setShowRawData(!showRawData)}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:bg-white rounded transition-colors"
+                >
+                {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showRawData ? 'Hide Raw Data' : 'View Raw Data'}
+                </button>
+              </div>
+              {showRawData && (
+                <div className="mt-4 bg-slate-100 rounded-lg p-4 border border-slate-200 max-h-96 overflow-y-scroll overflow-x-auto">
+                <pre className="text-xs text-slate-700 whitespace-pre-wrap break-words w-full max-w-[calc(100dvw-8rem)]">
+                {JSON.stringify(scrapeResult, null, 2)}
+                </pre>
                 </div>
-                {showRawData && (
-                  <div className="mt-4 bg-slate-100 rounded-lg p-4 border border-slate-200 max-h-96 overflow-y-auto">
-                    <pre className="text-xs text-slate-700 whitespace-pre-wrap">
-          {JSON.stringify(scrapeResult, null, 2)}
-        </pre>
-                  </div>
-                )}
+              )}
               </div>
             )}
 
